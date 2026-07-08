@@ -1,19 +1,23 @@
 // Playlist Functions
 global.addFolder = async function() {
+  console.log('addFolder called');
   const result = await ipcRenderer.invoke('select-folder');
+  console.log('select-folder result:', result);
   if (result) {
     const { folderPath, files } = result;
-    const startIndex = global.playlistItems.length;
+    console.log('Folder path:', folderPath);
+    console.log('Files count:', files.length);
+    
+    // Clear playlist and add new files
+    global.playlistItems = [];
     files.forEach(file => {
-      if (!global.playlistItems.includes(file)) {
-        global.playlistItems.push(file);
-      }
+      global.playlistItems.push(file);
     });
     global.updatePlaylistUI();
 
     // Auto-play first file from new folder
     if (global.playlistItems.length > 0) {
-      global.playVideoAtIndex(startIndex);
+      global.playVideoAtIndex(0, true);
     }
   }
 }
@@ -31,7 +35,7 @@ global.addFiles = async function() {
 
     // Auto-play first file from new files
     if (global.playlistItems.length > 0) {
-      global.playVideoAtIndex(startIndex);
+      global.playVideoAtIndex(startIndex, true);
     }
   }
 }
@@ -68,7 +72,7 @@ global.updatePlaylistUI = function() {
     
     item.addEventListener('click', (e) => {
       if (!e.target.classList.contains('playlist-item-remove')) {
-        global.playVideoAtIndex(index);
+        global.playVideoAtIndex(index, true);
       }
     });
     
@@ -91,7 +95,7 @@ global.removeFromPlaylist = function(index) {
   
   if (index === global.currentIndex) {
     if (global.playlistItems.length > 0) {
-      global.playVideoAtIndex(Math.min(index, global.playlistItems.length - 1));
+      global.playVideoAtIndex(Math.min(index, global.playlistItems.length - 1), true);
     } else {
       global.clearPlaylist();
     }

@@ -11,12 +11,17 @@ global.getMediaType = function(filePath) {
 global.loadVideo = function(filePath, forceSameWindow = false) {
   console.log('=== LOAD MEDIA START ===');
   console.log('File path:', filePath);
+  console.log('forceSameWindow:', forceSameWindow);
   
   const mediaType = global.getMediaType(filePath);
   console.log('Media type:', mediaType);
 
   // Check if media is currently playing, if so open in new window (unless forced to use same window)
   const isMediaPlaying = !videoPlayer.paused || global.currentMediaType === 'image' || global.currentMediaType === 'audio';
+  console.log('isMediaPlaying:', isMediaPlaying);
+  console.log('currentMediaType:', global.currentMediaType);
+  console.log('videoPlayer.paused:', videoPlayer.paused);
+  
   if (isMediaPlaying && global.currentMediaType !== null && !forceSameWindow) {
     console.log('Media is currently playing, opening in new window');
     ipcRenderer.send('open-new-window', filePath);
@@ -25,14 +30,35 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
 
   global.currentMediaType = mediaType;
   
+  // When forcing same window, just reset the player state without waiting for pause
+  if (forceSameWindow) {
+    videoPlayer.pause();
+    videoPlayer.currentTime = 0;
+    videoPlayer.src = '';
+  }
+  
   // Hide both elements first
   videoPlayer.classList.add('hidden');
   imagePlayer.classList.add('hidden');
   
-  // Stop video if playing
-  videoPlayer.pause();
-  videoPlayer.currentTime = 0;
-  videoPlayer.src = '';
+  // Stop video if playing - use a promise to wait for pause to complete
+  const pausePromise = videoPlayer.pause();
+  if (pausePromise !== undefined) {
+    pausePromise.then(() => {
+      videoPlayer.currentTime = 0;
+      videoPlayer.src = '';
+    }).catch(() => {
+      // Ignore pause errors
+      videoPlayer.currentTime = 0;
+      videoPlayer.src = '';
+    });
+  } else {
+    videoPlayer.currentTime = 0;
+    videoPlayer.src = '';
+  }
+  
+  // Remove image error listener temporarily
+  imagePlayer.onerror = null;
   
   if (mediaType === 'image') {
     // Load image
@@ -41,6 +67,9 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     console.log('Image media URL:', mediaUrl);
     imagePlayer.src = mediaUrl;
     imagePlayer.classList.remove('hidden');
+
+    // Restore image error listener
+    imagePlayer.onerror = global.onImageError;
 
     // Only stop slideshow if not currently running (i.e., manual navigation)
     // Don't stop it when slideshow is navigating
@@ -58,6 +87,10 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     // Hide all controls except floating button
     mainControls.classList.add('hidden');
     welcomeScreen.classList.add('hidden');
+    
+    // Hide navigation buttons
+    previousBtn.classList.add('hidden');
+    nextBtn.classList.add('hidden');
 
     global.updateVideoInfo(filePath);
   } else if (mediaType === 'audio') {
@@ -85,11 +118,16 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     welcomeScreen.classList.add('hidden');
 
     videoPlayer.load();
-    videoPlayer.play().then(() => {
-      console.log('Audio play() succeeded');
-    }).catch(err => {
-      console.error('Error playing audio:', err);
-    });
+    
+    // Wait for pause to complete before playing
+    const playPromise = videoPlayer.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        console.log('Audio play() succeeded');
+      }).catch(err => {
+        console.error('Error playing audio:', err);
+      });
+    }
 
     global.updateVideoInfo(filePath);
   } else {
@@ -97,6 +135,11 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     console.log('Loading video:', filePath);
     const mediaUrl = 'media://' + encodeURIComponent(filePath);
     console.log('Video media URL:', mediaUrl);
+    
+    // Hide image player
+    imagePlayer.classList.add('hidden');
+    imagePlayer.src = '';
+    
     videoPlayer.src = mediaUrl;
     videoPlayer.classList.remove('hidden');
 
@@ -112,11 +155,16 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     durationEl.classList.remove('hidden');
     
     videoPlayer.load();
-    videoPlayer.play().then(() => {
-      console.log('Video play() succeeded');
-    }).catch(err => {
-      console.error('Error playing video:', err);
-    });
+    
+    // Wait for pause to complete before playing
+    const playPromise = videoPlayer.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        console.log('Video play() succeeded');
+      }).catch(err => {
+        console.error('Error playing video:', err);
+      });
+    }
     mainControls.classList.remove('hidden');
     welcomeScreen.classList.add('hidden');
     global.updateVideoInfo(filePath);

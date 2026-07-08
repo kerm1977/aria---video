@@ -1,11 +1,17 @@
 // Image viewer functions
 global.onImageError = function(e) {
+  // Only handle image errors if we're actually in image mode
+  if (global.currentMediaType !== 'image') {
+    console.log('Ignoring image error in non-image mode');
+    return;
+  }
+  
   console.error('Image error:', e);
   
   // Try to play next item if current one fails
   if (global.currentIndex < global.playlistItems.length - 1) {
     console.log('Trying next item...');
-    global.playVideoAtIndex(global.currentIndex + 1);
+    global.playVideoAtIndex(global.currentIndex + 1, true);
   }
 }
 
@@ -27,7 +33,7 @@ global.navigateImage = function(direction, isSlideshowNavigation = false) {
   if (newIndex < 0) newIndex = global.playlistItems.length - 1;
   if (newIndex >= global.playlistItems.length) newIndex = 0;
 
-  global.playVideoAtIndex(newIndex);
+  global.playVideoAtIndex(newIndex, true);
 }
 
 global.updateImageTransform = function() {
