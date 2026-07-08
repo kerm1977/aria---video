@@ -1,0 +1,91 @@
+.video-info {
+  background: #1d1d1d;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.video-info p {
+  font-size: 13px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.video-info p:last-child {
+  margin-bottom: 0;
+}
+
+.video-info strong {
+  color: #a0a0a0;
+}
+
+.video-info span {
+  text-align: right;
+  word-break: break-all;
+}
+
+.console-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.console-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #a0a0a0;
+  cursor: pointer;
+}
+
+.console-toggle input {
+  cursor: pointer;
+}
+
+.console-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.debug-console {
+  background: #0d0d0d;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #00ff00;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.debug-console .log-entry {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.debug-console .log-entry:last-child {
+  border-bottom: none;
+}
+
+.debug-console .log-time {
+  color: #6366f1;
+  margin-right: 8px;
+}
+
+.debug-console .log-error {
+  color: #ff6b6b;
+}
+
+.debug-console .log-warn {
+  color: #ffd93d;
+}

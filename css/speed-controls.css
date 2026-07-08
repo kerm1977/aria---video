@@ -1,0 +1,59 @@
+.speed-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.speed-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.speed-btn {
+  padding: 8px 16px;
+  background: #3d3d3d;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.speed-btn:hover {
+  background: #4d4d4d;
+}
+
+.speed-btn.active {
+  background: #6366f1;
+}
+
+.speed-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.speed-slider-container label {
+  font-size: 14px;
+  color: #a0a0a0;
+}
+
+.speed-slider-container input[type="range"] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: #3d3d3d;
+  border-radius: 3px;
+  outline: none;
+}
+
+.speed-slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+}

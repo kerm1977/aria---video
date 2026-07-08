@@ -1,0 +1,81 @@
+.playlist-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #6366f1;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #4f46e5;
+}
+
+.btn-large {
+  padding: 16px 24px;
+  font-size: 16px;
+}
+
+.playlist {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #1d1d1d;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.playlist-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+  margin-bottom: 4px;
+}
+
+.playlist-item:hover {
+  background: #3d3d3d;
+}
+
+.playlist-item.active {
+  background: #6366f1;
+}
+
+.playlist-item-name {
+  flex: 1;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-item-remove {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.playlist-item-remove:hover {
+  background: rgba(255, 107, 107, 0.2);
+}

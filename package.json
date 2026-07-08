@@ -1,0 +1,41 @@
+{
+  "name": "aria-video-player",
+  "version": "1.0.0",
+  "description": "Aria Video Player - Reproductor de video y audio con Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "Aria",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.aria.videoplayer",
+    "productName": "Aria Video Player",
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "AudioVideo",
+      "icon": "assets/icon.svg",
+      "mimeTypes": [
+        "video/mp4",
+        "video/x-matroska",
+        "video/x-msvideo",
+        "video/quicktime",
+        "video/x-ms-wmv",
+        "video/x-flv",
+        "video/webm",
+        "audio/mpeg",
+        "audio/wav",
+        "audio/ogg",
+        "audio/flac",
+        "audio/mp4",
+        "audio/x-m4a",
+        "audio/x-ms-wma"
+      ]
+    }
+  }
+}
