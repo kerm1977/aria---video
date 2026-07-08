@@ -19,6 +19,12 @@ global.onImageLoaded = function() {
   console.log('Image loaded successfully');
   // Keep mainControls hidden for images - only show floating button
   welcomeScreen.classList.add('hidden');
+  
+  // Only start slideshow if in fullscreen, current media type is image, and there are multiple images
+  if (document.fullscreenElement && global.currentMediaType === 'image' && global.playlistItems.length > 1 && !global.isSlideshowRunning) {
+    console.log('Auto-starting slideshow for images in fullscreen');
+    global.startSlideshow();
+  }
 }
 
 global.navigateImage = function(direction, isSlideshowNavigation = false) {

@@ -65,17 +65,23 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     console.log('Loading image:', filePath);
     const mediaUrl = 'media://' + encodeURIComponent(filePath);
     console.log('Image media URL:', mediaUrl);
+    
+    // Stop audio/video playback completely
+    videoPlayer.pause();
+    videoPlayer.currentTime = 0;
+    videoPlayer.src = '';
+    
+    // Hide audio visualizer and stop it
+    showAudioVisualizer(false);
+    
+    // Stop any slideshow
+    global.stopSlideshow();
+    
     imagePlayer.src = mediaUrl;
     imagePlayer.classList.remove('hidden');
 
     // Restore image error listener
     imagePlayer.onerror = global.onImageError;
-
-    // Only stop slideshow if not currently running (i.e., manual navigation)
-    // Don't stop it when slideshow is navigating
-    if (!global.isSlideshowRunning) {
-      global.stopSlideshow();
-    }
 
     // Reset image transform state
     global.imageZoom = 1;
@@ -98,24 +104,36 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     console.log('Loading audio:', filePath);
     const mediaUrl = 'media://' + encodeURIComponent(filePath);
     console.log('Audio media URL:', mediaUrl);
+    
+    // Stop slideshow
+    global.stopSlideshow();
+    
     videoPlayer.src = mediaUrl;
     videoPlayer.classList.remove('hidden');
 
-    // Hide video-specific controls (progress, forward/backward)
+    // Hide video-specific controls (forward/backward only)
     forwardBtn.classList.add('hidden');
     backwardBtn.classList.add('hidden');
-    progressBar.classList.add('hidden');
-    currentTimeEl.classList.add('hidden');
-    durationEl.classList.add('hidden');
+    // Show progress bar for audio
+    progressBar.classList.remove('hidden');
+    currentTimeEl.classList.remove('hidden');
+    durationEl.classList.remove('hidden');
 
-    // Show audio-specific controls (play/pause, stop, volume, next/previous)
+    // Show audio-specific controls (play/pause, stop, volume, next/previous, shuffle, repeat, loop)
     playPauseBtn.classList.remove('hidden');
     stopBtn.classList.remove('hidden');
     previousBtn.classList.remove('hidden');
     nextBtn.classList.remove('hidden');
+    document.getElementById('shuffleBtn').classList.remove('hidden');
+    document.getElementById('repeatBtn').classList.remove('hidden');
+    document.getElementById('loopABtn').classList.remove('hidden');
+    document.getElementById('loopBBtn').classList.remove('hidden');
 
     mainControls.classList.remove('hidden');
     welcomeScreen.classList.add('hidden');
+
+    // Show audio visualizer
+    showAudioVisualizer(true);
 
     videoPlayer.load();
     
@@ -136,6 +154,9 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     const mediaUrl = 'media://' + encodeURIComponent(filePath);
     console.log('Video media URL:', mediaUrl);
     
+    // Stop slideshow
+    global.stopSlideshow();
+    
     // Hide image player
     imagePlayer.classList.add('hidden');
     imagePlayer.src = '';
@@ -143,7 +164,7 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     videoPlayer.src = mediaUrl;
     videoPlayer.classList.remove('hidden');
 
-    // Show video-specific controls
+    // Show video-specific controls (including shuffle, repeat, loop)
     playPauseBtn.classList.remove('hidden');
     stopBtn.classList.remove('hidden');
     forwardBtn.classList.remove('hidden');
@@ -153,6 +174,13 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     progressBar.classList.remove('hidden');
     currentTimeEl.classList.remove('hidden');
     durationEl.classList.remove('hidden');
+    document.getElementById('shuffleBtn').classList.remove('hidden');
+    document.getElementById('repeatBtn').classList.remove('hidden');
+    document.getElementById('loopABtn').classList.remove('hidden');
+    document.getElementById('loopBBtn').classList.remove('hidden');
+    
+    // Hide audio visualizer
+    showAudioVisualizer(false);
     
     videoPlayer.load();
     

@@ -1,0 +1,39 @@
+.audio-visualizer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 1;
+}
+
+.song-title {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  z-index: 2;
+  text-align: center;
+  max-width: 80%;
+  word-wrap: break-word;
+  pointer-events: none;
+}
+
+.control-btn.active {
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff;
+}
+
+.control-btn.loop-a-active {
+  color: #ff00ff;
+  text-shadow: 0 0 5px #ff00ff;
+}
+
+.control-btn.loop-b-active {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}

@@ -83,6 +83,12 @@ function setupEventListeners() {
   backwardBtn.addEventListener('click', () => global.seekVideo(-10));
   previousBtn.addEventListener('click', () => global.navigatePlaylist(-1));
   nextBtn.addEventListener('click', () => global.navigatePlaylist(1));
+  
+  // Shuffle and repeat buttons
+  document.getElementById('shuffleBtn').addEventListener('click', global.toggleShuffle);
+  document.getElementById('repeatBtn').addEventListener('click', global.toggleRepeat);
+  document.getElementById('loopABtn').addEventListener('click', global.setLoopA);
+  document.getElementById('loopBBtn').addEventListener('click', global.setLoopB);
 
   videoPlayer.addEventListener('timeupdate', global.updateProgress);
   videoPlayer.addEventListener('loadedmetadata', global.onVideoLoaded);
