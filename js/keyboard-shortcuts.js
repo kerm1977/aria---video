@@ -103,6 +103,7 @@ global.handleKeyboard = function(e) {
         document.documentElement.requestFullscreen();
       }
       break;
+    case 'a':
     case 'A':
       if (e.shiftKey && e.ctrlKey) {
         // Shift + Ctrl + A - Add folder
@@ -112,7 +113,17 @@ global.handleKeyboard = function(e) {
         // Shift + A - Add files
         e.preventDefault();
         global.addFiles();
+      } else {
+        // A - Previous in playlist
+        e.preventDefault();
+        global.navigatePlaylist(-1);
       }
+      break;
+    case 's':
+    case 'S':
+      // S - Next in playlist
+      e.preventDefault();
+      global.navigatePlaylist(1);
       break;
   }
 }

@@ -26,6 +26,8 @@ const playPauseBtn = document.getElementById('playPauseBtn');
 const stopBtn = document.getElementById('stopBtn');
 const forwardBtn = document.getElementById('forwardBtn');
 const backwardBtn = document.getElementById('backwardBtn');
+const previousBtn = document.getElementById('previousBtn');
+const nextBtn = document.getElementById('nextBtn');
 const playIcon = document.getElementById('playIcon');
 const pauseIcon = document.getElementById('pauseIcon');
 
@@ -68,6 +70,7 @@ function init() {
   setupEventListeners();
   global.updatePlayPauseButton();
   global.setupInverseScrollbar();
+  global.setupSearch();
 }
 
 function setupEventListeners() {
@@ -78,6 +81,8 @@ function setupEventListeners() {
   stopBtn.addEventListener('click', global.stopVideo);
   forwardBtn.addEventListener('click', () => global.seekVideo(10));
   backwardBtn.addEventListener('click', () => global.seekVideo(-10));
+  previousBtn.addEventListener('click', () => global.navigatePlaylist(-1));
+  nextBtn.addEventListener('click', () => global.navigatePlaylist(1));
 
   videoPlayer.addEventListener('timeupdate', global.updateProgress);
   videoPlayer.addEventListener('loadedmetadata', global.onVideoLoaded);

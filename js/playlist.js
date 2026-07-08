@@ -101,3 +101,13 @@ global.removeFromPlaylist = function(index) {
   
   global.updatePlaylistUI();
 }
+
+global.navigatePlaylist = function(direction) {
+  if (global.playlistItems.length === 0) return;
+  
+  let newIndex = global.currentIndex + direction;
+  if (newIndex < 0) newIndex = global.playlistItems.length - 1;
+  if (newIndex >= global.playlistItems.length) newIndex = 0;
+  
+  global.playVideoAtIndex(newIndex, true);
+}

@@ -18,7 +18,7 @@ function createWindow(filePath = null) {
       webSecurity: false
     },
     icon: path.join(__dirname, 'assets', 'icon.png'),
-    title: 'aria - video'
+    title: 'Aria - Player'
   });
 
   win.loadFile('index.html');

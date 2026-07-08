@@ -8,16 +8,16 @@ global.getMediaType = function(filePath) {
   return 'video';
 }
 
-global.loadVideo = function(filePath) {
+global.loadVideo = function(filePath, forceSameWindow = false) {
   console.log('=== LOAD MEDIA START ===');
   console.log('File path:', filePath);
   
   const mediaType = global.getMediaType(filePath);
   console.log('Media type:', mediaType);
 
-  // Check if media is currently playing, if so open in new window
+  // Check if media is currently playing, if so open in new window (unless forced to use same window)
   const isMediaPlaying = !videoPlayer.paused || global.currentMediaType === 'image' || global.currentMediaType === 'audio';
-  if (isMediaPlaying && global.currentMediaType !== null) {
+  if (isMediaPlaying && global.currentMediaType !== null && !forceSameWindow) {
     console.log('Media is currently playing, opening in new window');
     ipcRenderer.send('open-new-window', filePath);
     return;
@@ -75,9 +75,11 @@ global.loadVideo = function(filePath) {
     currentTimeEl.classList.add('hidden');
     durationEl.classList.add('hidden');
 
-    // Show audio-specific controls (play/pause, stop, volume)
+    // Show audio-specific controls (play/pause, stop, volume, next/previous)
     playPauseBtn.classList.remove('hidden');
     stopBtn.classList.remove('hidden');
+    previousBtn.classList.remove('hidden');
+    nextBtn.classList.remove('hidden');
 
     mainControls.classList.remove('hidden');
     welcomeScreen.classList.add('hidden');
@@ -103,6 +105,8 @@ global.loadVideo = function(filePath) {
     stopBtn.classList.remove('hidden');
     forwardBtn.classList.remove('hidden');
     backwardBtn.classList.remove('hidden');
+    previousBtn.classList.remove('hidden');
+    nextBtn.classList.remove('hidden');
     progressBar.classList.remove('hidden');
     currentTimeEl.classList.remove('hidden');
     durationEl.classList.remove('hidden');
@@ -120,10 +124,10 @@ global.loadVideo = function(filePath) {
   console.log('=== LOAD MEDIA END ===');
 }
 
-global.playVideoAtIndex = function(index) {
+global.playVideoAtIndex = function(index, forceSameWindow = false) {
   if (index >= 0 && index < global.playlistItems.length) {
     global.currentIndex = index;
-    global.loadVideo(global.playlistItems[index]);
+    global.loadVideo(global.playlistItems[index], forceSameWindow);
     global.updatePlaylistUI();
   }
 }

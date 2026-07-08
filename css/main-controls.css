@@ -42,6 +42,10 @@
   transition: all 0.2s;
 }
 
+.control-btn.hidden {
+  display: none;
+}
+
 .control-btn:hover {
   background: #4d4d4d;
   transform: scale(1.1);

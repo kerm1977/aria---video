@@ -11,6 +11,20 @@ global.toggleOptionsPanel = function() {
 global.toggleSection = function(section, btn) {
   const content = document.getElementById(section + '-section');
   if (content) {
+    const isCollapsing = !content.classList.contains('collapsed');
+    
+    // Close all other sections (accordion behavior)
+    document.querySelectorAll('.section-content').forEach(otherContent => {
+      if (otherContent !== content) {
+        otherContent.classList.add('collapsed');
+        const otherBtn = otherContent.parentElement.querySelector('.collapse-btn');
+        if (otherBtn) {
+          otherBtn.classList.add('collapsed');
+        }
+      }
+    });
+    
+    // Toggle current section
     content.classList.toggle('collapsed');
     btn.classList.toggle('collapsed');
   }
@@ -100,7 +114,7 @@ global.resetHideTimeout = function() {
 
 // Inverse Scrollbar
 global.setupInverseScrollbar = function() {
-  const scrollableElements = document.querySelectorAll('.playlist, .panel-content');
+  const scrollableElements = document.querySelectorAll('.playlist');
   
   scrollableElements.forEach(element => {
     element.addEventListener('wheel', (e) => {
@@ -114,4 +128,52 @@ global.setupInverseScrollbar = function() {
       }
     }, { passive: false });
   });
+};
+
+// Search functionality
+global.setupSearch = function() {
+  const searchInput = document.getElementById('searchInput');
+  if (!searchInput) return;
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    if (query.length < 2) return;
+
+    global.searchOptions(query);
+  });
+};
+
+global.searchOptions = function(query) {
+  const sections = document.querySelectorAll('.panel-section');
+  let found = false;
+
+  sections.forEach(section => {
+    const header = section.querySelector('.section-header h4');
+    const content = section.querySelector('.section-content');
+    const collapseBtn = section.querySelector('.collapse-btn');
+
+    if (!header || !content || !collapseBtn) return;
+
+    const sectionName = header.textContent.toLowerCase();
+    const contentText = content.textContent.toLowerCase();
+
+    if (sectionName.includes(query) || contentText.includes(query)) {
+      // Open the section
+      content.classList.remove('collapsed');
+      collapseBtn.classList.remove('collapsed');
+
+      // Add highlight effect
+      section.classList.add('search-highlight');
+      setTimeout(() => {
+        section.classList.remove('search-highlight');
+      }, 1500);
+
+      // Scroll to the section
+      section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      found = true;
+    }
+  });
+
+  return found;
 };
