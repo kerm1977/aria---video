@@ -1,236 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: media:; media-src 'self' media: blob:;">
-  <title>aria - video</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/titlebar.css">
-  <link rel="stylesheet" href="css/video.css">
-  <link rel="stylesheet" href="css/floating-btn.css">
-  <link rel="stylesheet" href="css/options-panel.css">
-  <link rel="stylesheet" href="css/playlist.css">
-  <link rel="stylesheet" href="css/speed-controls.css">
-  <link rel="stylesheet" href="css/video-info.css">
-  <link rel="stylesheet" href="css/main-controls.css">
-  <link rel="stylesheet" href="css/welcome.css">
-  <link rel="stylesheet" href="css/scrollbar.css">
-  <link rel="stylesheet" href="css/auto-hide.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: media:; media-src 'self' media: blob:;">
+<title>aria - video</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/titlebar.css">
+<link rel="stylesheet" href="css/video.css">
+<link rel="stylesheet" href="css/floating-btn.css">
+<link rel="stylesheet" href="css/options-panel.css">
+<link rel="stylesheet" href="css/playlist.css">
+<link rel="stylesheet" href="css/speed-controls.css">
+<link rel="stylesheet" href="css/video-info.css">
+<link rel="stylesheet" href="css/main-controls.css">
+<link rel="stylesheet" href="css/welcome.css">
+<link rel="stylesheet" href="css/scrollbar.css">
+<link rel="stylesheet" href="css/auto-hide.css">
 </head>
 <body>
-  <!-- Custom titlebar for frameless window -->
-  <div class="titlebar">
-    <div class="titlebar-drag-area">aria - video</div>
-    <div class="titlebar-controls">
-      <button class="titlebar-btn titlebar-minimize" id="minimizeBtn"></button>
-      <button class="titlebar-btn titlebar-maximize" id="maximizeBtn"></button>
-      <button class="titlebar-btn titlebar-close" id="closeBtn"></button>
-    </div>
-  </div>
-
-  <div class="container">
-    <video id="videoPlayer" class="video-player"></video>
-    <img id="imagePlayer" class="image-player hidden">
-    
-    <!-- Floating button for options -->
-    <button id="floatingBtn" class="floating-btn">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="1"></circle>
-        <circle cx="12" cy="5" r="1"></circle>
-        <circle cx="12" cy="19" r="1"></circle>
-      </svg>
-    </button>
-
-    <!-- Options panel -->
-    <div id="optionsPanel" class="options-panel hidden">
-      <div class="panel-header">
-        <h3>Aria - Player</h3>
-        <button id="closePanel" class="close-btn">×</button>
-      </div>
-      
-      <div class="panel-content">
-        <!-- Playlist section -->
-        <div class="panel-section">
-          <div class="section-header">
-            <h4>Lista de Reproducción</h4>
-            <button class="collapse-btn" data-section="playlist">
-              <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div class="section-content" id="playlist-section">
-            <div class="playlist-controls">
-              <button id="addFolderBtn" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                </svg>
-                Añadir Carpeta
-              </button>
-              <button id="addFilesBtn" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                Añadir Archivos
-              </button>
-              <button id="clearPlaylistBtn" class="btn btn-danger">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-                Limpiar Lista
-              </button>
-            </div>
-            <div id="playlist" class="playlist"></div>
-          </div>
-        </div>
-
-        <!-- Speed control section -->
-        <div class="panel-section">
-          <div class="section-header">
-            <h4>Control de Velocidad</h4>
-            <button class="collapse-btn" data-section="speed">
-              <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div class="section-content" id="speed-section">
-            <div class="speed-controls">
-              <div class="speed-presets">
-                <button class="speed-btn" data-speed="0.25">0.25x</button>
-                <button class="speed-btn" data-speed="0.5">0.5x</button>
-                <button class="speed-btn active" data-speed="1">1x</button>
-                <button class="speed-btn" data-speed="1.5">1.5x</button>
-                <button class="speed-btn" data-speed="2">2x</button>
-              </div>
-              <div class="speed-slider-container">
-                <label>Velocidad: <span id="speedValue">1.0</span>x</label>
-                <input type="range" id="speedSlider" min="0.1" max="3" step="0.1" value="1">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Video info section -->
-        <div class="panel-section">
-          <div class="section-header">
-            <h4>Información del Video</h4>
-            <button class="collapse-btn" data-section="info">
-              <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div class="section-content" id="info-section">
-            <div id="videoInfo" class="video-info">
-              <p><strong>Archivo:</strong> <span id="infoName">-</span></p>
-              <p><strong>Ruta:</strong> <span id="infoPath">-</span></p>
-              <p><strong>Tamaño:</strong> <span id="infoSize">-</span></p>
-              <p><strong>Duración:</strong> <span id="infoDuration">-</span></p>
-              <p><strong>Resolución:</strong> <span id="infoResolution">-</span></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Debug console section -->
-        <div class="panel-section">
-          <div class="section-header">
-            <h4>Consola de Depuración</h4>
-            <button class="collapse-btn" data-section="console">
-              <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
-          <div class="section-content" id="console-section">
-            <div class="console-controls">
-              <label class="console-toggle">
-                <input type="checkbox" id="consoleToggle">
-                <span>Activar registro</span>
-              </label>
-              <div class="console-buttons">
-                <button id="copyConsole" class="btn btn-small">Copiar</button>
-                <button id="clearConsole" class="btn btn-small">Limpiar</button>
-              </div>
-            </div>
-            <div id="debugConsole" class="debug-console"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main controls (visible when video is loaded) -->
-    <div id="mainControls" class="main-controls hidden">
-      <div class="controls-row">
-        <button id="stopBtn" class="control-btn" title="Stop">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="6" y="6" width="12" height="12"></rect>
-          </svg>
-        </button>
-        <button id="backwardBtn" class="control-btn" title="Retroceder 10s">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 19 2 12 11 5 11 19"></polygon>
-            <polygon points="22 19 13 12 22 5 22 19"></polygon>
-          </svg>
-        </button>
-        <button id="playPauseBtn" class="control-btn play-btn" title="Play/Pause">
-          <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          <svg id="pauseIcon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="6" y="4" width="4" height="16"></rect>
-            <rect x="14" y="4" width="4" height="16"></rect>
-          </svg>
-        </button>
-        <button id="forwardBtn" class="control-btn" title="Adelantar 10s">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="13 19 22 12 13 5 13 19"></polygon>
-            <polygon points="2 19 11 12 2 5 2 19"></polygon>
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Progress bar -->
-      <div class="progress-container">
-        <span id="currentTime">0:00</span>
-        <input type="range" id="progressBar" class="progress-bar" min="0" max="100" value="0">
-        <span id="duration">0:00</span>
-      </div>
-
-      <!-- Volume control -->
-      <div class="volume-container">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.1" value="1">
-      </div>
-    </div>
-
-    <!-- Welcome screen -->
-    <div id="welcomeScreen" class="welcome-screen">
-      <div class="welcome-content">
-        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-          <line x1="7" y1="2" x2="7" y2="22"></line>
-          <line x1="17" y1="2" x2="17" y2="22"></line>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <line x1="2" y1="7" x2="7" y2="7"></line>
-          <line x1="2" y1="17" x2="7" y2="17"></line>
-          <line x1="17" y1="17" x2="22" y2="17"></line>
-          <line x1="17" y1="7" x2="22" y2="7"></line>
-        </svg>
-        <h1>aria - video</h1>
-        <p>Reproductor de video y audio</p>
-        <p class="welcome-hint">Usa el botón flotante para añadir archivos</p>
-      </div>
-    </div>
-  </div>
-
-  <script src="renderer.js"></script>
+<div class="titlebar"><div class="titlebar-drag-area">aria - video</div><div class="titlebar-controls"><button class="titlebar-btn titlebar-minimize" id="minimizeBtn"></button><button class="titlebar-btn titlebar-maximize" id="maximizeBtn"></button><button class="titlebar-btn titlebar-close" id="closeBtn"></button></div></div>
+<div class="container">
+<video id="videoPlayer" class="video-player"></video>
+<img id="imagePlayer" class="image-player hidden">
+<button id="floatingBtn" class="floating-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+<div id="optionsPanel" class="options-panel hidden">
+<div class="panel-header"><h3>Aria - Player</h3><button id="closePanel" class="close-btn">×</button></div>
+<div class="panel-content">
+<div class="panel-section"><div class="section-header"><h4>Lista de Reproducción</h4><button class="collapse-btn" data-section="playlist"><svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button></div><div class="section-content" id="playlist-section"><div class="playlist-controls"><button id="addFolderBtn" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Añadir Carpeta</button><button id="addFilesBtn" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Añadir Archivos</button><button id="clearPlaylistBtn" class="btn btn-danger"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Limpiar Lista</button></div><div id="playlist" class="playlist"></div></div></div>
+<div class="panel-section"><div class="section-header"><h4>Control de Velocidad</h4><button class="collapse-btn" data-section="speed"><svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button></div><div class="section-content" id="speed-section"><div class="speed-controls"><div class="speed-presets"><button class="speed-btn" data-speed="0.25">0.25x</button><button class="speed-btn" data-speed="0.5">0.5x</button><button class="speed-btn active" data-speed="1">1x</button><button class="speed-btn" data-speed="1.5">1.5x</button><button class="speed-btn" data-speed="2">2x</button></div><div class="speed-slider-container"><label>Velocidad: <span id="speedValue">1.0</span>x</label><input type="range" id="speedSlider" min="0.1" max="3" step="0.1" value="1"></div></div></div></div>
+<div class="panel-section"><div class="section-header"><h4>Información del Video</h4><button class="collapse-btn" data-section="info"><svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button></div><div class="section-content" id="info-section"><div id="videoInfo" class="video-info"><p><strong>Archivo:</strong> <span id="infoName">-</span></p><p><strong>Ruta:</strong> <span id="infoPath">-</span></p><p><strong>Tamaño:</strong> <span id="infoSize">-</span></p><p><strong>Duración:</strong> <span id="infoDuration">-</span></p><p><strong>Resolución:</strong> <span id="infoResolution">-</span></p></div></div></div>
+<div class="panel-section"><div class="section-header"><h4>Consola de Depuración</h4><button class="collapse-btn" data-section="console"><svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button></div><div class="section-content" id="console-section"><div class="console-controls"><label class="console-toggle"><input type="checkbox" id="consoleToggle"><span>Activar registro</span></label><div class="console-buttons"><button id="copyConsole" class="btn btn-small">Copiar</button><button id="clearConsole" class="btn btn-small">Limpiar</button></div></div><div id="debugConsole" class="debug-console"></div></div></div>
+</div></div>
+<div id="mainControls" class="main-controls hidden">
+<div class="controls-row"><button id="stopBtn" class="control-btn" title="Stop"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg></button><button id="backwardBtn" class="control-btn" title="Retroceder 10s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg></button><button id="playPauseBtn" class="control-btn play-btn" title="Play/Pause"><svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><svg id="pauseIcon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button><button id="forwardBtn" class="control-btn" title="Adelantar 10s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg></button></div>
+<div class="progress-container"><span id="currentTime">0:00</span><input type="range" id="progressBar" class="progress-bar" min="0" max="100" value="0"><span id="duration">0:00</span></div>
+<div class="volume-container"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.1" value="1"></div>
+</div>
+<div id="welcomeScreen" class="welcome-screen"><div class="welcome-content"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg><h1>aria - video</h1><p>Reproductor de video y audio</p><p class="welcome-hint">Usa el botón flotante para añadir archivos</p></div></div>
+</div>
+<script src="renderer.js"></script>
 </body>
 </html>
