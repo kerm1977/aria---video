@@ -4,8 +4,8 @@ const fs = require('fs');
 
 let mainWindow;
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
+function createWindow(filePath = null) {
+  const win = new BrowserWindow({
     width: 1280,
     height: 720,
     minWidth: 800,
@@ -21,11 +21,22 @@ function createWindow() {
     title: 'aria - video'
   });
 
-  mainWindow.loadFile('index.html');
+  win.loadFile('index.html');
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  win.on('closed', () => {
+    if (win === mainWindow) {
+      mainWindow = null;
+    }
   });
+
+  // If a file path is provided, load it after the window is ready
+  if (filePath) {
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('open-file', filePath);
+    });
+  }
+
+  return win;
 }
 
 app.whenReady().then(() => {
@@ -95,9 +106,15 @@ ipcMain.on('maximize-window', () => {
 });
 
 ipcMain.on('close-window', () => {
-  if (mainWindow) {
-    mainWindow.close();
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  if (focusedWindow) {
+    focusedWindow.close();
   }
+});
+
+ipcMain.on('open-new-window', (event, filePath) => {
+  const newWindow = createWindow(filePath);
+  newWindow.focus();
 });
 
 ipcMain.handle('select-folder', async () => {

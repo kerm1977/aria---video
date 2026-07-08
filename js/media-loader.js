@@ -13,8 +13,17 @@ global.loadVideo = function(filePath) {
   console.log('File path:', filePath);
   
   const mediaType = global.getMediaType(filePath);
-  global.currentMediaType = mediaType;
   console.log('Media type:', mediaType);
+
+  // Check if media is currently playing, if so open in new window
+  const isMediaPlaying = !videoPlayer.paused || global.currentMediaType === 'image' || global.currentMediaType === 'audio';
+  if (isMediaPlaying && global.currentMediaType !== null) {
+    console.log('Media is currently playing, opening in new window');
+    ipcRenderer.send('open-new-window', filePath);
+    return;
+  }
+
+  global.currentMediaType = mediaType;
   
   // Hide both elements first
   videoPlayer.classList.add('hidden');
