@@ -29,6 +29,7 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
   }
 
   global.currentMediaType = mediaType;
+  global.isTranscoding = false;
   
   // When forcing same window, just reset the player state without waiting for pause
   if (forceSameWindow) {
@@ -151,8 +152,6 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
   } else {
     // Load video
     console.log('Loading video:', filePath);
-    const mediaUrl = 'media://' + encodeURIComponent(filePath);
-    console.log('Video media URL:', mediaUrl);
     
     // Stop slideshow
     global.stopSlideshow();
@@ -161,41 +160,149 @@ global.loadVideo = function(filePath, forceSameWindow = false) {
     imagePlayer.classList.add('hidden');
     imagePlayer.src = '';
     
-    videoPlayer.src = mediaUrl;
-    videoPlayer.classList.remove('hidden');
+    // Check if file is MKV and needs transcoding
+    const ext = filePath.toLowerCase().split('.').pop();
+    if (ext === 'mkv') {
+      console.log('MKV file detected, starting instantaneous FFmpeg stream');
+      global.isTranscoding = false; // We stream it instantly, no need to block
+      
+      // Stop any existing FFmpeg process
+      if (window.electronAPI) {
+        window.electronAPI.stopFFmpeg();
+      }
+      
+      // Start FFmpeg transcode
+      window.electronAPI.startFFmpegTranscode(filePath).then(result => {
+        console.log('FFmpeg stream result:', result);
+        const mediaUrl = result.url;
+        console.log('Video media URL:', mediaUrl);
+        
+        videoPlayer.src = mediaUrl;
+        videoPlayer.classList.remove('hidden');
 
-    // Show video-specific controls (including shuffle, repeat, loop)
-    playPauseBtn.classList.remove('hidden');
-    stopBtn.classList.remove('hidden');
-    forwardBtn.classList.remove('hidden');
-    backwardBtn.classList.remove('hidden');
-    previousBtn.classList.remove('hidden');
-    nextBtn.classList.remove('hidden');
-    progressBar.classList.remove('hidden');
-    currentTimeEl.classList.remove('hidden');
-    durationEl.classList.remove('hidden');
-    document.getElementById('shuffleBtn').classList.remove('hidden');
-    document.getElementById('repeatBtn').classList.remove('hidden');
-    document.getElementById('loopABtn').classList.remove('hidden');
-    document.getElementById('loopBBtn').classList.remove('hidden');
-    
-    // Hide audio visualizer
-    showAudioVisualizer(false);
-    
-    videoPlayer.load();
-    
-    // Wait for pause to complete before playing
-    const playPromise = videoPlayer.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        console.log('Video play() succeeded');
+        // Get video duration for display only (not for forcing videoPlayer.duration)
+        window.electronAPI.getVideoDuration(filePath).then(duration => {
+          if (duration) {
+            console.log('Video duration from ffprobe:', duration);
+            // Store duration for display purposes only
+            global.videoDuration = duration;
+          }
+        });
+
+        // Show video-specific controls (including shuffle, repeat, loop)
+        playPauseBtn.classList.remove('hidden');
+        stopBtn.classList.remove('hidden');
+        forwardBtn.classList.remove('hidden');
+        backwardBtn.classList.remove('hidden');
+        previousBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+        progressBar.classList.remove('hidden');
+        currentTimeEl.classList.remove('hidden');
+        durationEl.classList.remove('hidden');
+        document.getElementById('shuffleBtn').classList.remove('hidden');
+        document.getElementById('repeatBtn').classList.remove('hidden');
+        document.getElementById('loopABtn').classList.remove('hidden');
+        document.getElementById('loopBBtn').classList.remove('hidden');
+        
+        // Hide audio visualizer
+        showAudioVisualizer(false);
+        
+        videoPlayer.load();
+        
+        // Wait for pause to complete before playing
+        const playPromise = videoPlayer.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log('Video play() succeeded');
+          }).catch(err => {
+            console.error('Error playing video:', err);
+          });
+        }
+        mainControls.classList.remove('hidden');
+        welcomeScreen.classList.add('hidden');
+        global.updateVideoInfo(filePath);
       }).catch(err => {
-        console.error('Error playing video:', err);
+        console.error('FFmpeg transcode error:', err);
+        
+        // Fallback to direct loading
+        const mediaUrl = 'media://' + encodeURIComponent(filePath);
+        videoPlayer.src = mediaUrl;
+        videoPlayer.classList.remove('hidden');
+
+        // Show video-specific controls (including shuffle, repeat, loop)
+        playPauseBtn.classList.remove('hidden');
+        stopBtn.classList.remove('hidden');
+        forwardBtn.classList.remove('hidden');
+        backwardBtn.classList.remove('hidden');
+        previousBtn.classList.remove('hidden');
+        nextBtn.classList.remove('hidden');
+        progressBar.classList.remove('hidden');
+        currentTimeEl.classList.remove('hidden');
+        durationEl.classList.remove('hidden');
+        document.getElementById('shuffleBtn').classList.remove('hidden');
+        document.getElementById('repeatBtn').classList.remove('hidden');
+        document.getElementById('loopABtn').classList.remove('hidden');
+        document.getElementById('loopBBtn').classList.remove('hidden');
+        
+        // Hide audio visualizer
+        showAudioVisualizer(false);
+        
+        videoPlayer.load();
+        
+        // Wait for pause to complete before playing
+        const playPromise = videoPlayer.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log('Video play() succeeded');
+          }).catch(err => {
+            console.error('Error playing video:', err);
+          });
+        }
+        mainControls.classList.remove('hidden');
+        welcomeScreen.classList.add('hidden');
+        global.updateVideoInfo(filePath);
       });
+    } else {
+      // Load directly for non-MKV videos
+      const mediaUrl = 'media://' + encodeURIComponent(filePath);
+      console.log('Video media URL:', mediaUrl);
+      
+      videoPlayer.src = mediaUrl;
+      videoPlayer.classList.remove('hidden');
+
+      // Show video-specific controls (including shuffle, repeat, loop)
+      playPauseBtn.classList.remove('hidden');
+      stopBtn.classList.remove('hidden');
+      forwardBtn.classList.remove('hidden');
+      backwardBtn.classList.remove('hidden');
+      previousBtn.classList.remove('hidden');
+      nextBtn.classList.remove('hidden');
+      progressBar.classList.remove('hidden');
+      currentTimeEl.classList.remove('hidden');
+      durationEl.classList.remove('hidden');
+      document.getElementById('shuffleBtn').classList.remove('hidden');
+      document.getElementById('repeatBtn').classList.remove('hidden');
+      document.getElementById('loopABtn').classList.remove('hidden');
+      document.getElementById('loopBBtn').classList.remove('hidden');
+      
+      // Hide audio visualizer
+      showAudioVisualizer(false);
+      
+      videoPlayer.load();
+      
+      // Wait for pause to complete before playing
+      const playPromise = videoPlayer.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          console.log('Video play() succeeded');
+        }).catch(err => {
+          console.error('Error playing video:', err);
+        });
+      }
+      mainControls.classList.remove('hidden');
+      welcomeScreen.classList.add('hidden');
+      global.updateVideoInfo(filePath);
     }
-    mainControls.classList.remove('hidden');
-    welcomeScreen.classList.add('hidden');
-    global.updateVideoInfo(filePath);
   }
   console.log('=== LOAD MEDIA END ===');
 }

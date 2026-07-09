@@ -1,8 +1,110 @@
 const { app, BrowserWindow, ipcMain, dialog, protocol } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { spawn, exec } = require('child_process');
+const http = require('http');
+const url = require('url');
 
 let mainWindow;
+let ffmpegProcess = null;
+let streamServerPort = 0;
+let videoDurations = new Map(); // Cache for video durations
+
+// Get video duration using ffprobe
+function getVideoDuration(filePath) {
+  return new Promise((resolve) => {
+    exec(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`, (error, stdout) => {
+      if (error || !stdout) {
+        resolve(null);
+        return;
+      }
+      const duration = parseFloat(stdout.trim());
+      if (isNaN(duration)) {
+        resolve(null);
+      } else {
+        resolve(duration);
+      }
+    });
+  });
+}
+
+const streamServer = http.createServer((req, res) => {
+  const parsedUrl = url.parse(req.url, true);
+  if (parsedUrl.pathname === '/stream') {
+    const filePath = parsedUrl.query.file;
+    if (!filePath || !fs.existsSync(filePath)) {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+
+    if (ffmpegProcess) {
+      ffmpegProcess.kill('SIGKILL');
+      ffmpegProcess = null;
+    }
+
+    // Determine content type based on extension or transcode need
+    const ext = path.extname(filePath).toLowerCase();
+    
+    // Set headers for progressive streaming
+    res.writeHead(200, {
+      'Content-Type': 'video/mp4',
+      'Transfer-Encoding': 'chunked',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    console.log('Instant streaming:', filePath);
+
+    // Get video duration for accurate progress bar
+    getVideoDuration(filePath).then(duration => {
+      if (duration) {
+        videoDurations.set(filePath, duration);
+        console.log('Video duration:', duration);
+      }
+    });
+
+    ffmpegProcess = spawn('ffmpeg', [
+      '-i', filePath,
+      '-map', '0:v:0',
+      '-map', '0:a:0',
+      '-c:v', 'copy',
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      '-ac', '2',
+      '-ar', '48000',
+      '-sn',
+      '-dn',
+      '-movflags', 'frag_keyframe+empty_moov+default_base_moof',
+      '-f', 'mp4',
+      'pipe:1'
+    ]);
+
+    ffmpegProcess.stdout.pipe(res);
+
+    ffmpegProcess.stderr.on('data', (data) => {
+      // Uncomment to debug FFmpeg stream
+      // console.log(data.toString());
+    });
+
+    ffmpegProcess.on('close', () => {
+      console.log('FFmpeg stream process closed');
+      res.end();
+    });
+
+    req.on('close', () => {
+      console.log('Client closed connection, killing FFmpeg');
+      if (ffmpegProcess) {
+        ffmpegProcess.kill('SIGKILL');
+        ffmpegProcess = null;
+      }
+    });
+  }
+});
+
+streamServer.listen(0, '127.0.0.1', () => {
+  streamServerPort = streamServer.address().port;
+  console.log('Stream server running on port:', streamServerPort);
+});
 
 function createWindow(filePath = null) {
   const win = new BrowserWindow({
@@ -195,6 +297,33 @@ ipcMain.on('file-exists', (event, filePath) => {
   const exists = fs.existsSync(filePath);
   console.log('File exists check for:', filePath, 'Result:', exists);
   event.returnValue = exists;
+});
+
+// Stop any running FFmpeg process
+ipcMain.on('stop-ffmpeg', () => {
+  // Handled inherently by the new streaming model or existing process
+});
+
+ipcMain.handle('get-stream-port', () => {
+  return streamServerPort;
+});
+
+ipcMain.handle('get-video-duration', async (event, filePath) => {
+  const cached = videoDurations.get(filePath);
+  if (cached) return cached;
+  const duration = await getVideoDuration(filePath);
+  if (duration) {
+    videoDurations.set(filePath, duration);
+  }
+  return duration;
+});
+
+// Start FFmpeg transcode for MKV files
+// This is kept for backward compatibility if called, but we'll use the local stream server
+ipcMain.handle('start-ffmpeg-transcode', async (event, filePath) => {
+  return new Promise((resolve) => {
+    resolve({ url: `http://127.0.0.1:${streamServerPort}/stream?file=${encodeURIComponent(filePath)}`, isTranscoded: true });
+  });
 });
 
 function formatFileSize(bytes) {

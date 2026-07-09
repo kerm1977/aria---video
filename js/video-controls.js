@@ -29,19 +29,48 @@ global.seekVideo = function(seconds) {
 }
 
 global.updateProgress = function() {
-  if (videoPlayer.duration) {
-    const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-    progressBar.value = progress;
+  // Use cached duration from ffprobe for streaming videos
+  const duration = global.videoDuration || videoPlayer.duration;
+  
+  if (duration && duration !== Infinity) {
+    const progress = (videoPlayer.currentTime / duration) * 100;
+    // Clamp progress between 0 and 100 to prevent erratic behavior
+    const clampedProgress = Math.max(0, Math.min(100, progress));
+    progressBar.value = clampedProgress;
     currentTimeEl.textContent = global.formatTime(videoPlayer.currentTime);
-    durationEl.textContent = global.formatTime(videoPlayer.duration);
+    durationEl.textContent = global.formatTime(duration);
+  } else {
+    // For streaming without known duration, just show current time
+    currentTimeEl.textContent = global.formatTime(videoPlayer.currentTime);
+    durationEl.textContent = '∞';
   }
 }
 
 global.formatTime = function(seconds) {
-  if (isNaN(seconds)) return '0:00';
+  if (isNaN(seconds) || seconds === Infinity) return '∞';
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Setup video event listeners for progress tracking
+// This will be called after DOM is ready
+global.setupVideoEventListeners = function() {
+  if (!videoPlayer) return;
+  
+  videoPlayer.addEventListener('loadedmetadata', function() {
+    console.log('Video metadata loaded, duration:', videoPlayer.duration);
+    global.updateProgress();
+  });
+
+  videoPlayer.addEventListener('durationchange', function() {
+    console.log('Video duration changed to:', videoPlayer.duration);
+    global.updateProgress();
+  });
+
+  videoPlayer.addEventListener('timeupdate', function() {
+    global.updateProgress();
+  });
 }
 
 global.onVideoLoaded = function() {
@@ -66,6 +95,13 @@ global.onVideoError = function(e) {
   // Ignore video errors when not in video mode (image/audio mode)
   if (global.currentMediaType !== 'video') {
     console.log('Ignoring video error in non-video mode');
+    return;
+  }
+
+  // Ignore spurious error events fired while FFmpeg is transcoding
+  // (videoPlayer.src is temporarily empty/invalid during this window)
+  if (global.isTranscoding) {
+    console.log('Ignoring video error while transcoding');
     return;
   }
 
@@ -104,8 +140,11 @@ global.handleSpeedBtn = function(e) {
 }
 
 global.handleProgressChange = function() {
-  const time = (progressBar.value / 100) * videoPlayer.duration;
-  videoPlayer.currentTime = time;
+  const duration = global.videoDuration || videoPlayer.duration;
+  if (duration && duration !== Infinity) {
+    const time = (progressBar.value / 100) * duration;
+    videoPlayer.currentTime = time;
+  }
 }
 
 global.handleVolumeChange = function() {

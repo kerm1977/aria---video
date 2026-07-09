@@ -7,6 +7,7 @@ global.isControlsVisible = true;
 global.isConsoleEnabled = false;
 global.consoleLogs = [];
 global.currentMediaType = null; // 'video', 'image', or 'audio'
+global.isTranscoding = false;
 
 // Image viewer state
 global.imageZoom = 1;
